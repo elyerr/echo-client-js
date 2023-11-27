@@ -1,0 +1,9 @@
+.*
+node_*
+public
+src
+test
+index*
+package-lock.json
+tsconfig.json
+vite*
