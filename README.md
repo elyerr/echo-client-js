@@ -1,6 +1,11 @@
 # Echo Server Client
 Cliente websokets para aplicaciones bajo javascript o cualquier framework bajo JS, este cliente funciona usando el servidor [Echo Server](https://gitlab.com/elyerr/echo-server)
 
+#### INSTALACION BAJO NODEJS
+puedes instalarlo facilmente en tus proyectos ejecutando el siguiente comando
+```
+npm i echo-server-client
+```
 #### CONFIGURACION
 configuracion para el framework de vuejs, puedes ajustarlo dependiendo del framework
 ```
