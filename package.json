@@ -1,0 +1,24 @@
+{
+  "name": "echo-client",
+  "version": "1.0.0",
+  "private": true,
+  "license": "GPL-3.0",
+  "author": {
+    "email": "yerel9212@yahoo.es",
+    "name": "Elvis Yerel Roman Concha",
+    "url": "https://gitlab.com/elyerr/echo-server"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "tsc": "tsc",
+    "tsc-build": "tsc -w",
+    "tsc-publish": "npm run tsc-build"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.4.0",
+    "vite": "^4.4.11",
+    "vue": "^3.3.4"
+  }
+}
