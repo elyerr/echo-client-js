@@ -1,4 +1,4 @@
-# Echo Client (Testing)
+# Echo Server Client
 Cliente websokets para aplicaciones bajo javascript o cualquier framework bajo JS, este cliente funciona usando el servidor [Echo Server](https://gitlab.com/elyerr/echo-server)
 
 #### CONFIGURACION

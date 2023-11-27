@@ -1,22 +1,22 @@
 {
-  "name": "echo-client",
-  "version": "1.0.0",
-  "private": false,
+  "name": "echo-server-client",
+  "version": "1.0.1", 
   "license": "GPL-3.0",
   "description": "Cliente de websockets de Echo Server para clientes bajo javascript",
   "main": "./distribution/EchoClient.js",
   "author": {
     "email": "yerel9212@yahoo.es",
     "name": "Elvis Yerel Roman Concha",
-    "url": "https://gitlab.com/elyerr/echo-server"
+    "url": "https://gitlab.com/elyerr/echo-client"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tsc": "tsc",
-    "tsc-build": "tsc -w",
-    "tsc-publish": "npm run tsc-build"
+    "tsc": "tsc -w",
+    "tsc-build": "tsc",
+    "tsc-publish": "npm run tsc-build",
+    "test": "tsc"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",

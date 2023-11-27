@@ -1,4 +1,5 @@
-.*
+.vscode
+.gitignore
 node_*
 public
 src
@@ -7,3 +8,4 @@ index*
 package-lock.json
 tsconfig.json
 vite*
+dist
