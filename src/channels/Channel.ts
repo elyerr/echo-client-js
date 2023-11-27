@@ -69,8 +69,9 @@ export class Channel {
 
             if (msg.action == "subscribe" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
-
             } else if (msg.action == "event" && msg.event == ListenEvent && belongsTo) {
+                return callback(msg)
+            } else if (msg.action == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
             }
         })
@@ -118,8 +119,9 @@ export class Channel {
 
                 if (msg.action == "subscribe" && msg.event == ListenEvent && belongsTo) {
                     return callback(msg)
-
                 } else if (msg.action == "event" && msg.event == ListenEvent && belongsTo) {
+                    return callback(msg)
+                } else if (msg.action == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
                     return callback(msg)
                 }
             }

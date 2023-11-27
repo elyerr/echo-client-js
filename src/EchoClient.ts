@@ -1,6 +1,6 @@
 import { PrivateChannel } from "./channels/PrivateChannel";
 import { PublicChannel } from "./channels/PublicChannel";
-import { PresenceChannel } from "./channels/PresenceChannel";   
+import { PresenceChannel } from "./channels/PresenceChannel";
 
 export default class EchoClient {
 
@@ -28,33 +28,29 @@ export default class EchoClient {
     private uuid: String;
 
     /**
+     * URL o endpoint del servidor websockets
+     * @var string
+     */
+    private endpoint: string;
+
+    /**
      * constructor principal de la clase
+     * 
      * @param options 
      */
     constructor(options: any) {
-        
+
         this.uuid = self.crypto.randomUUID();
 
         this.options = JSON.parse(JSON.stringify(options))
 
-        const endpoint = `${this.options.transport ? this.options.transport : 'wss'}://${this.options.host}:${this.options.port}`
+        this.endpoint = `${this.options.transport ? this.options.transport : 'wss'}://${this.options.host}:${this.options.port}`
 
-        this.server = new WebSocket(endpoint)
+        this.server = new WebSocket(this.endpoint)
 
-        this.server.onopen = () => {
-            this.server.send(this.subscribe())
-        }
-
-        this.server.onerror = (error) => {
-            console.log(error);
-        }
-
-        this.server.onclose = (close) => {
-            if (close.code == 1000) {
-                this.server.send(this.unsubscribe())
-                this.server = new WebSocket(endpoint)
-            }
-        }
+        this.server.addEventListener('open', (open) => {
+            this.server.send(this.session())
+        })
     }
 
     /**
@@ -74,7 +70,7 @@ export default class EchoClient {
      * @param channel_name 
      * @returns PrivateCannel
      */
-    private(channel_name: String, message: String) {
+    private(channel_name: String) {
         const channel = new PrivateChannel(this.server, channel_name, this.options.auth, this.uuid)
         return channel
     }
@@ -91,14 +87,14 @@ export default class EchoClient {
     }
 
     /**
-    * envia informacion relevante al servidor
+    * envia informacion relevante al servidor cuando se ingresa por primera vez
     * 
     * @return String
     */
-    subscribe() {
+    session() {
 
         const data = {
-            id: this.uuid, 
+            id: this.uuid,
             host: window.location.hostname,
             action: 'subscribe',
         }
@@ -107,18 +103,59 @@ export default class EchoClient {
     }
 
     /**
-    * envia informacion relevante al servidor
+     * subscribe al cliente al servidor websockets normalmente suele usarse luego
+     * de terminar una sesion con el servidor websockets
+     * 
+     * @param callback : Function
+     * @return void
+     */
+    /*subscribe(callback: Function) {
+        this.server = new WebSocket(this.endpoint)
+        this.server.send(this.session())
+        this.server.addEventListener('open', (open) => {
+            return callback(open)
+        })
+    }*/
+
+    /**
+    * cierra una conexion con el servidor websocket
     * 
     * @return String
     */
     unsubscribe() {
 
         const data = {
+            id: this.uuid,
             host: window.location.hostname,
             action: 'unsubscribe',
         }
 
-        return JSON.stringify(data)
+        this.server.send(JSON.stringify(data))
+
+        const message = 'The client has finished connection'
+        this.server.close(1000, message)
+    }
+
+    /**
+     * escucha el envento cuando el servidor cierra la conexion 
+     * 
+     * @param callback : Function
+     */
+    closed(callback: Function) {
+        this.server.addEventListener('close', (close) => {
+            return callback(close)
+        })
+    }
+
+    /**
+     * escucha el envento cuando ocurre un error con el servidor websockets
+     * 
+     * @param callback Function
+     */
+    error(callback: Function) {
+        this.server.addEventListener('error', (error) => {
+            return callback(error)
+        })
     }
 
 

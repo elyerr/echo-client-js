@@ -30,17 +30,18 @@ app.mount("#app");
 ```
 
 ### TIPOS DE CANALES
-Existen 3 tipos de eventos, estos son accedidos a traves de una instacia de echo-client, el parametro **canal** es el nombre del canal por donde se emitira el evento
+Existen 3 categorias de canales, estos son accedidos a traves de una instacia de echo-client, el parametro **canal** es el nombre del canal por donde se emitira el evento
 - **channel(canal)** : canal publico
 - **private(canal)** : canal privado
 - **presence(canals)** : canal de presencia
 
 
 ### EMITIR EVENTOS
-Para emitir eventos simplemente se debe llamar a la instacia de echo global, esta accion puede ir dentro de una funcion para que sea facil de controlar
+Para emitir eventos simplemente se debe llamar a la instacia de echo global, esta accion puede ir dentro de una funcion para que sea facil de controlar, recibe tres parametros, siendo
+los 2 ultimos parametros opciones, el primer parametro es el nombre del evento a emitir, el segundo es un mensaje en el evento, y el ultimo es un id por defecto tomara el id unico por sesion generada cuando no se ingresa un valor
 ```
   nuevoEvento() {
-      this.$echo.channel("chat").event("message");
+      this.$echo.channel("chat")event(EventName: String, msg: String, id: string);
     },
 ```
 
@@ -64,7 +65,7 @@ this.$echo.presence(canal).listen(event, (res) => {
 })
 
 ```
-
+### LISTENER U OYENTES ANIDADOS
 Tambien puedes escuchar multiples eventos de un solo canal de la siguiente forma, esto aplica tanto para privados y de presencia
 
 ``` 
@@ -101,8 +102,40 @@ this.$echo.channel(canal)
 })
 
 ``` 
-
+### OBTENER EL IDENTIFICADOR DE SESSION
 Para obtener el id de la session de echo client puedes usar la siguiente funcion
 ```
 this.$echo.getId()
+```
+
+### LISTENER U OYENTES POR DEFECTO
+Hay dos tipos de listener por defecto que son emitidos justo cuando alguien se conecta o se desconecta, puedes usarlo por los diferentes categorias de canales no solo aplica para publicos.
+```
+this.$echo.channel("subscribe").listen("subscribe", (msg) => {
+       //logica aqui
+    });
+
+this.$echo.channel("unsubscribe").listen("unsubscribe", (msg) => {
+    //logica aqui
+    });
+
+```
+
+Se integegro dos oyentes que te pemiten capturar excepciones cuando se pierda la conexion con el server o cuando suceda algun error
+```
+ this.$echo.closed((close) => {
+      //logica aqui
+    });
+
+    this.$echo.error((error) => {
+      //logica aqui
+     });
+
+```
+
+### DESCONECTARTE DEL SERVIDOR DE WEBSOCKETS
+midiante este metodo te permitirá desconectarte del servidor websockets, ten encuenta que esto hara que no recibas informacion en tiempo real si tu aplicacion es reactiva. si desdeas volver a conectarte al servidor deberas recargar la pagina para que automaticamente genere nuevas credenciales.
+```
+this.$echo.unsubscribe();
+
 ```
