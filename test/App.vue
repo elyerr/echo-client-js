@@ -6,9 +6,7 @@
     <div class="col-12 py-2">
       <div class="row row-cols-2 cols-12">
         <div class="col-2">
-          <label for="id">
-            Alias
-          </label> 
+          <label for="id"> Alias </label>
         </div>
         <div class="col-5">
           <input type="text" id="id" class="form-control" v-model="name" />
@@ -25,7 +23,7 @@
     </div>
     <div class="col mt-2">
       <div class="row row-cols-2 px-0 col-12">
-        <div class="col-11 px-0">
+        <div class="col-9 px-0">
           <input
             class="form-control"
             type="text"
@@ -36,10 +34,13 @@
             @keyup.enter="sendMessage"
           />
         </div>
-        <div class="col-1 px-1">
+        <div class="col-3 px-1">
           <button class="btn btn-info btn-inline" @click="sendMessage">
-            Enviar
+            enviar
           </button>
+          <button class="btn mx-2 btn-danger" @click="closeConexion()">
+            unsubscribe
+          </button> 
         </div>
       </div>
     </div>
@@ -61,10 +62,26 @@ export default {
 
     this.$echo.channel("subscribe").listen("subscribe", (msg) => {
       this.messages.push([msg.id, msg.message]);
-    })
+    });
+
+    this.$echo.channel("unsubscribe").listen("unsubscribe", (msg) => {
+      this.messages.push([msg.id, msg.message]);
+    });
+
+    this.$echo.closed((close) => {
+      console.log(close);
+    });
+
+    this.$echo.error((error) => {
+      console.log(error);
+    });
   },
 
   methods: {
+     
+    closeConexion() {
+      this.$echo.unsubscribe();
+    },
     sendMessage() {
       this.$echo.channel("chat").event("message", this.message, this.name);
       this.message = null;
