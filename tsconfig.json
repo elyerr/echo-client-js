@@ -3,12 +3,13 @@
     "src/**/*"
   ],
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2018",
     "lib": [
-      "ES6",
+      "ES2018",
       "DOM"
     ],
-    "module": "ES6",
+    "moduleResolution": "node",
+    "module": "ESNext",
     "outDir": "distribution",
     "removeComments": true,
     "esModuleInterop": true,
