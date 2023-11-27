@@ -10,7 +10,7 @@ npm i echo-server-client
 configuracion para el framework de vuejs, puedes ajustarlo dependiendo del framework
 ```
 import "./assets/main.css";
-import EchoClient from "EchoClient"; //paquete
+import EchoClient from "echo-server-client"; //paquete
 import { createApp } from "vue";
 import App from "./App.vue";
 
