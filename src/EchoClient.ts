@@ -1,7 +1,7 @@
 import { PrivateChannel } from "./channels/PrivateChannel";
 import { PublicChannel } from "./channels/PublicChannel";
 import { PresenceChannel } from "./channels/PresenceChannel";
-
+import { v4 as uuidv4 } from 'uuid';
 export default class EchoClient {
 
     /**
@@ -40,7 +40,7 @@ export default class EchoClient {
      */
     constructor(options: any) {
 
-        this.uuid = self.crypto.randomUUID();
+        this.uuid = uuidv4()
 
         this.options = JSON.parse(JSON.stringify(options))
 
