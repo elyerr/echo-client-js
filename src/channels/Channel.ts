@@ -49,19 +49,19 @@ export class Channel {
      * 
      * @var String
      */
-    private driver : String;
+    private driver: String;
 
     /**
      * constructor de la clase 
      * @param auth 
      * @param channel 
      */
-    constructor(server: WebSocket, driver:String, channel: String, auth: any, id: String) {
+    constructor(server: WebSocket, driver: String, channel: String, auth: any, id: String) {
         this.server = server
         this.driver = driver
         this.channel = channel
         this.auth = auth,
-        this.id = id
+            this.id = id
     }
 
     /**
@@ -72,18 +72,21 @@ export class Channel {
      * @param callback funcion
      * @return 
      */
-    listen(ListenEvent: String, callback: Function) { 
+    listen(ListenEvent: String, callback: Function) {
         //verifica si el canal que evento pertenezca a un canal
-        const belongsTo = this.class_name.toLowerCase().replace('channel', '') == this.mode;
+        const channel = this.class_name.toLowerCase().replace('channel', '')
+        const belongsTo = (channel == this.mode);
+
 
         //escucha eventos entrantes
         this.server.addEventListener("message", (listen) => {
 
             const msg = JSON.parse(listen.data)
+
             //verifica los distinto tipos de estado del listener
             if (msg.type == "subscribe" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
-            } else if (msg.type == "event" && msg.event == ListenEvent && belongsTo) {
+            } else if (msg.type == "event" && msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
                 return callback(msg)
             } else if (msg.type == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
@@ -92,8 +95,7 @@ export class Channel {
 
         return this
     };
-
-
+ 
     /**
      * Emite un evento directamente desde js
      * 
@@ -108,9 +110,9 @@ export class Channel {
             channel: `${this.mode}-${this.channel}`,
             event: EventName,
             message: msg,
-            headers: this.auth, 
-        } 
-        
+            headers: this.auth,
+        }
+
         this.server.send(JSON.stringify(data))
     }
 
