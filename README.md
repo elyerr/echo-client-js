@@ -46,6 +46,7 @@ Existen 3 categorias de canales, estos son accedidos a traves de una instacia de
 - **host** : uri donde se ejecuta el servidor principal.
 - **port**: puerto en donde se ejecuta el servidor websockets.
 - **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usara **wss** por defecto.
+- **channels**: requerido cuando el driver es **redis**, los canales van separados por commas **"test1,test2,etc"**
 - auth 
   - headers
     - Authotization : token de authorizacion requerido para canales privados y prensece (**sin soporte aún**)
