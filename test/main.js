@@ -4,9 +4,11 @@ import { createApp } from "vue";
 import App from "./App.vue";
 
 const echo = new EchoClient({
+  driver: "null", 
   host: "auth.spondylus.xyz",
   port: "6010",
   transport: 'ws',
+  channels:"assets",
   auth: {
     headers: {
       Authotization: "some_key",
