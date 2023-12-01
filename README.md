@@ -16,6 +16,7 @@ import App from "./App.vue";
 
 //configuracion del cliente
 const echo = new EchoClient({
+  driver: "null",
   host: "server.dominio.dom",
   port: "6010",
   transport: 'ws', //wss para ssl
@@ -40,6 +41,14 @@ Existen 3 categorias de canales, estos son accedidos a traves de una instacia de
 - **private(canal)** : canal privado
 - **presence(canals)** : canal de presencia
 
+### PARAMETROS ACEPTADOS
+- **driver**: soporta dos tipos **null** y **redis**, si no se agrega la propiedad por defecto usara **null**.
+- **host** : uri donde se ejecuta el servidor principal.
+- **port**: puerto en donde se ejecuta el servidor websockets.
+- **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usara **wss** por defecto.
+- auth 
+  - headers
+    - Authotization : token de authorizacion requerido para canales privados y prensece (**sin soporte aún**)
 
 ### EMITIR EVENTOS
 Para emitir eventos simplemente se debe llamar a la instacia de echo global, esta accion puede ir dentro de una funcion para que sea facil de controlar, recibe tres parametros, siendo

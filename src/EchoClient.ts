@@ -6,32 +6,45 @@ export default class EchoClient {
 
     /**
      * almacena los datos de conexion y credenciales de usuario
+     * 
      * @var any
      */
     private options: any;
 
     /**
      * Crear una instancia del servidor websocket
+     * 
      * @var String
      */
     private server: WebSocket;
 
     /**
-     * inicializa el servidor websockets
-     * @param options
+     * se ingresaran los canales a los que el cliente tendra acceso
+     * 
+     * @param String
      */
+    private channels: String;
 
     /**
      * indentificador unico del cliente
+     * 
      * @var string
      */
     private uuid: String;
 
     /**
      * URL o endpoint del servidor websockets
+     * 
      * @var string
      */
     private endpoint: string;
+
+    /**
+     * driver por donde escuchara eventos soporta (redis|null)
+     * 
+     * @var String
+     */
+    private driver: String;
 
     /**
      * constructor principal de la clase
@@ -43,6 +56,10 @@ export default class EchoClient {
         this.uuid = uuidv4()
 
         this.options = JSON.parse(JSON.stringify(options))
+
+        this.channels = this.options.channels
+
+        this.driver = this.options.driver ? this.options.driver : null
 
         this.endpoint = `${this.options.transport ? this.options.transport : 'wss'}://${this.options.host}:${this.options.port}`
 
@@ -60,7 +77,7 @@ export default class EchoClient {
      * @returns 
      */
     channel(channel_name: String) {
-        const channel = new PublicChannel(this.server, channel_name, null, this.uuid)
+        const channel = new PublicChannel(this.server, this.driver, channel_name, null, this.uuid)
         return channel
     }
 
@@ -71,7 +88,7 @@ export default class EchoClient {
      * @returns PrivateCannel
      */
     private(channel_name: String) {
-        const channel = new PrivateChannel(this.server, channel_name, this.options.auth, this.uuid)
+        const channel = new PrivateChannel(this.server, this.driver, channel_name, this.options.auth, this.uuid)
         return channel
     }
 
@@ -82,7 +99,7 @@ export default class EchoClient {
      * @returns 
      */
     presence(channel_name: string) {
-        const channel = new PresenceChannel(this.server, channel_name, this.options.auth, this.uuid);
+        const channel = new PresenceChannel(this.server, this.driver, channel_name, this.options.auth, this.uuid);
         return channel
     }
 
@@ -96,26 +113,14 @@ export default class EchoClient {
         const data = {
             id: this.uuid,
             host: window.location.hostname,
-            action: 'subscribe',
+            type: 'subscribe',
+            channels: this.channels,
+            headers: this.options.headers,
+            driver: this.driver
         }
 
         return JSON.stringify(data)
     }
-
-    /**
-     * subscribe al cliente al servidor websockets normalmente suele usarse luego
-     * de terminar una sesion con el servidor websockets
-     * 
-     * @param callback : Function
-     * @return void
-     */
-    /*subscribe(callback: Function) {
-        this.server = new WebSocket(this.endpoint)
-        this.server.send(this.session())
-        this.server.addEventListener('open', (open) => {
-            return callback(open)
-        })
-    }*/
 
     /**
     * cierra una conexion con el servidor websocket
@@ -127,7 +132,8 @@ export default class EchoClient {
         const data = {
             id: this.uuid,
             host: window.location.hostname,
-            action: 'unsubscribe',
+            type: 'unsubscribe',
+            driver: this.driver
         }
 
         this.server.send(JSON.stringify(data))

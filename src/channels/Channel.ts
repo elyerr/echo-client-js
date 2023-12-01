@@ -3,12 +3,14 @@ export class Channel {
 
     /**
      * nombre del canal 
+     * 
      * @var String
      */
     protected channel: String;
 
     /**
      * instacia de websokets
+     * 
      * @var WebSocket
      */
 
@@ -16,6 +18,7 @@ export class Channel {
 
     /**
      * tipo del tipo del canal
+     * 
      * @var String
      */
     public mode: String = 'public';
@@ -23,55 +26,66 @@ export class Channel {
 
     /**
      * nombre de la clase
+     * 
      * @var String
      */
     public class_name = Channel.name
 
     /**
      * almacena las credenciales de usuario solo en presence y private
+     * 
      * @var any
      */
     protected auth: any;
 
     /**
      * indentificador unico de la sesion
+     * 
      */
     protected id: String;
+
+    /**
+     * driver por donde escuchara eventos soporta (redis|null)
+     * 
+     * @var String
+     */
+    private driver : String;
 
     /**
      * constructor de la clase 
      * @param auth 
      * @param channel 
      */
-    constructor(server: WebSocket, channel: String, auth: any, id: String) {
+    constructor(server: WebSocket, driver:String, channel: String, auth: any, id: String) {
         this.server = server
+        this.driver = driver
         this.channel = channel
         this.auth = auth,
-            this.id = id
+        this.id = id
     }
 
     /**
-     * Escucha los eventos correspondientes a cada clase
+     * Escucha los eventos correspondientes a cada clase emitiendolos a todos 
+     * los que estan suscritos a ese canal y escuchando dicho evento
      * 
      * @param EventName String
      * @param callback funcion
      * @return 
      */
-    listen(ListenEvent: String, callback: Function) {
-
-        const event = ListenEvent
-
+    listen(ListenEvent: String, callback: Function) { 
+        //verifica si el canal que evento pertenezca a un canal
         const belongsTo = this.class_name.toLowerCase().replace('channel', '') == this.mode;
 
+        //escucha eventos entrantes
         this.server.addEventListener("message", (listen) => {
 
             const msg = JSON.parse(listen.data)
-
-            if (msg.action == "subscribe" && msg.event == ListenEvent && belongsTo) {
+            //verifica los distinto tipos de estado del listener
+            if (msg.type == "subscribe" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
-            } else if (msg.action == "event" && msg.event == ListenEvent && belongsTo) {
+            } else if (msg.type == "event" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
-            } else if (msg.action == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
+            } else if (msg.type == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
                 return callback(msg)
             }
         })
@@ -81,26 +95,28 @@ export class Channel {
 
 
     /**
-     * Emite un evento 
+     * Emite un evento directamente desde js
+     * 
      * @param EventName : String
      */
     event(EventName: String, msg: String, id: string) {
         const data = {
             id: id ? id : this.id,
+            driver: this.driver,
             host: window.location.hostname,
-            action: 'event',
-            channel: this.channel,
+            type: 'event',
+            channel: `${this.mode}-${this.channel}`,
             event: EventName,
             message: msg,
-            auth: this.mode == 'public' ? null : this.auth
-        }
-
+            headers: this.auth, 
+        } 
+        
         this.server.send(JSON.stringify(data))
     }
 
     /**
-    * Escucha los eventos correspondientes a todos los usuarios
-    * excpto al envento que el emite
+    * Escucha los eventos correspondientes a todos los usuarios emitiendo a todos
+    * excepto al cliente que emitio el evento
     * 
     * @param EventName String
     * @param callback funcion
@@ -117,11 +133,11 @@ export class Channel {
             const msg = JSON.parse(listen.data)
             if (msg.id != this.id) {
 
-                if (msg.action == "subscribe" && msg.event == ListenEvent && belongsTo) {
+                if (msg.type == "subscribe" && msg.event == ListenEvent && belongsTo) {
                     return callback(msg)
-                } else if (msg.action == "event" && msg.event == ListenEvent && belongsTo) {
+                } else if (msg.type == "event" && msg.event == ListenEvent && belongsTo) {
                     return callback(msg)
-                } else if (msg.action == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
+                } else if (msg.type == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
                     return callback(msg)
                 }
             }
