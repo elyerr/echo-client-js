@@ -77,25 +77,20 @@ export class Channel {
         const channel = this.class_name.toLowerCase().replace('channel', '')
         const belongsTo = (channel == this.mode);
 
-
         //escucha eventos entrantes
         this.server.addEventListener("message", (listen) => {
 
             const msg = JSON.parse(listen.data)
-
-            //verifica los distinto tipos de estado del listener
-            if (msg.type == "subscribe" && msg.event == ListenEvent && belongsTo) {
-                return callback(msg)
-            } else if (msg.type == "event" && msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
-                return callback(msg)
-            } else if (msg.type == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
+            
+            if (msg.type == "event" && msg.event == ListenEvent &&
+                belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
                 return callback(msg)
             }
         })
 
         return this
     };
- 
+
     /**
      * Emite un evento directamente desde js
      * 
@@ -126,25 +121,19 @@ export class Channel {
     */
     toOthers(ListenEvent: String, callback: Function) {
 
-        const event = ListenEvent
-
-        const belongsTo = this.class_name.toLowerCase().replace('channel', '') == this.mode;
+        const channel = this.class_name.toLowerCase().replace('channel', '')
+        const belongsTo = (channel == this.mode);
 
         this.server.addEventListener("message", (listen) => {
 
             const msg = JSON.parse(listen.data)
             if (msg.id != this.id) {
-
-                if (msg.type == "subscribe" && msg.event == ListenEvent && belongsTo) {
-                    return callback(msg)
-                } else if (msg.type == "event" && msg.event == ListenEvent && belongsTo) {
-                    return callback(msg)
-                } else if (msg.type == "unsubscribe" && msg.event == ListenEvent && belongsTo) {
+                if (msg.type == "event" && msg.event == ListenEvent &&
+                    belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
                     return callback(msg)
                 }
             }
         })
-
         return this
     };
 }
