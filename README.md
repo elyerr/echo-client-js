@@ -4,13 +4,13 @@ Cliente websokets para aplicaciones bajo javascript o cualquier framework bajo J
 #### INSTALACION BAJO NODEJS
 puedes instalarlo facilmente en tus proyectos ejecutando el siguiente comando
 ```
-npm i echo-server-client
+npm i echo-client-js
 ```
 #### CONFIGURACION
 configuracion para el framework de vuejs, puedes ajustarlo dependiendo del framework
 ```
 import "./assets/main.css";
-import EchoClient from "echo-server-client"; //paquete
+import EchoClient from "echo-client-js"; //paquete
 import { createApp } from "vue";
 import App from "./App.vue";
 
