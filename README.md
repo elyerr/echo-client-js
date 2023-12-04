@@ -124,13 +124,13 @@ this.$echo.getId()
 ```
 
 ### LISTENER U OYENTES POR DEFECTO
-Hay dos tipos de listener por defecto que son emitidos justo cuando alguien se conecta o se desconecta, puedes usarlo por los diferentes categorias de canales no solo aplica para publicos.
+Hay dos tipos de listener por defecto que son emitidos justo cuando alguien se conecta o se desconecta, puedes usarlo por los diferentes categorias de canales no solo aplica para publicos dependiendo del usuario estos se emitiran por el respectivo canal, el ejemplo debajo hace uso de canales publicos
 ```
-this.$echo.channel("subscribe").listen("subscribe", (msg) => {
+this.$echo.channel(ChannelName).listen("subscribe", (msg) => {
        //logica aqui
     });
 
-this.$echo.channel("unsubscribe").listen("unsubscribe", (msg) => {
+this.$echo.channel(ChannelName).listen("unsubscribe", (msg) => {
     //logica aqui
     });
 
