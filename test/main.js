@@ -8,10 +8,10 @@ const echo = new EchoClient({
   host: "auth.spondylus.xyz",
   port: "6010",
   transport: 'ws',
-  channels:"assets",
+  channels:"chat",
   auth: {
     headers: {
-      Authotization: "some_key",
+      Authotization: "",
     },
   },
 });
