@@ -20,11 +20,6 @@ const echo = new EchoClient({
   host: "server.dominio.dom",
   port: "6010",
   transport: 'ws', //wss para ssl
-  auth: {
-    headers: {
-      Authotization: "some_key",
-    },
-  },
 });
 
 const app = createApp(App);
@@ -47,9 +42,32 @@ Existen 3 categorias de canales, estos son accedidos a traves de una instacia de
 - **port**: puerto en donde se ejecuta el servidor websockets.
 - **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usara **wss** por defecto.
 - **channels**: requerido cuando el driver es **redis**, los canales van separados por commas **"test1,test2,etc"**
-- auth 
-  - headers
-    - Authotization : token de authorizacion requerido para canales privados y prensece (**sin soporte aún**)
+
+El servidor websockets [Echo Server](https://gitlab.com/elyerr/echo-server), por defecto para la autenticacion de canales privados y presence usararan las cookies de cada cliente para la autenticacion. si el host de autorizacion maneja la sesion por cookies asegurate de que estas sean compartidas por todos los subdominios para que el cliente tenga acceso a esas cookies y se envien por medio del server websocket en caso contrario puede agregar el token de autorizacion directamente en la configuracion global de EchoClient agregando los siguiente llave. 
+
+```
+headers: {
+    Authorization: "token",
+ },
+
+```
+**Nota:** debes tener en cuenta que el servidor websocket [Echo Server](https://gitlab.com/elyerr/echo-server) no se encarga de la autorizacion directamente, simplemente envia las credenciales aun host por medio de un **endpoint** que este le proporciona, si tu host lo desarrollaste tu mismo deberas recuperar las credenciales que van en las cabeceras y realizar tu propia logica de autorizacion. si estas usando un framework como laravel ya tiene un **endpoint** y una logica predefinada que automaticamente procesará las credenciales que van en las cabeceras tomando por defecto las cookies y si estas utilizado microservicios y quieres que te autentique tambien por token deberas pasale el middleware como parametro en el service provider para que pueda autorizar los tokens.
+
+Esta condfiguracion de ejemplo solo aplica para microservicios bajo laravel deberas adaptarla segun tu framework o dependiendo la configuracion que tengas
+
+```
+   public function boot()
+    {
+        $middleware = request()->cookie(env('COOKIE_NAME', 'auth_server')) ? //cookie de session
+        ['middleware' => ['web']] : //sesion por defecto de laravel
+        ['middleware' => ['auth:api']];//usando passport
+
+        Broadcast::routes($middleware);
+
+        require base_path('routes/channels.php');
+    }
+
+``` 
 
 ### EMITIR EVENTOS
 Para emitir eventos simplemente se debe llamar a la instacia de echo global, esta accion puede ir dentro de una funcion para que sea facil de controlar, recibe tres parametros, siendo
