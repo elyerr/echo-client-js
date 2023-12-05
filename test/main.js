@@ -9,11 +9,9 @@ const echo = new EchoClient({
   port: "6010",
   transport: 'ws',
   channels:"chat",
-  auth: {
     headers: {
-      Authotization: "",
+      Authotization: "token",
     },
-  },
 });
 
 const app = createApp(App);
