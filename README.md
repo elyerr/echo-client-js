@@ -41,7 +41,7 @@ Existen 3 categorias de canales, estos son accedidos a traves de una instacia de
 - **host** : uri donde se ejecuta el servidor principal.
 - **port**: puerto en donde se ejecuta el servidor websockets.
 - **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usara **wss** por defecto.
-- **channels**: requerido cuando el driver es **redis**, los canales van separados por commas **"test1,test2,etc"**
+- **channels**: los canales van separados por commas **"test1,test2,etc"**
 
 El servidor websockets [Echo Server](https://gitlab.com/elyerr/echo-server), por defecto para la autenticacion de canales privados y presence usararan las cookies de cada cliente para la autenticacion. si el host de autorizacion maneja la sesion por cookies asegurate de que estas sean compartidas por todos los subdominios para que el cliente tenga acceso a esas cookies y se envien por medio del server websocket en caso contrario puede agregar el token de autorizacion directamente en la configuracion global de EchoClient agregando los siguiente llave. 
 
