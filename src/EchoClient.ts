@@ -111,8 +111,7 @@ export default class EchoClient {
     session() {
 
         const data = {
-            id: this.uuid,
-            host: window.location.hostname,
+            id: this.uuid, 
             type: 'subscribe',
             channels: this.channels,
             headers: this.options.headers,
@@ -130,8 +129,7 @@ export default class EchoClient {
     unsubscribe() {
 
         const data = {
-            id: this.uuid,
-            host: window.location.hostname,
+            id: this.uuid, 
             type: 'unsubscribe',
             driver: this.driver
         }

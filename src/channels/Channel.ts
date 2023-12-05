@@ -100,7 +100,6 @@ export class Channel {
         const data = {
             id: id ? id : this.id,
             driver: this.driver,
-            host: window.location.hostname,
             type: 'event',
             channel: `${this.mode}-${this.channel}`,
             event: EventName,
