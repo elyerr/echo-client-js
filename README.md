@@ -38,10 +38,9 @@ Existen 3 categorías de canales, estos son accedidos a través de una instancia
 
 ### PARÁMETROS ACEPTADOS
 - **driver**: soporta dos tipos **null** y **redis**, si no se agrega la propiedad por defecto usara **null**.
-- **host** : uri donde se ejecuta el servidor principal.
+- **host** : uri donde se ejecuta el servidor principal websocket.
 - **port**: puerto en donde se ejecuta el servidor websockets.
-- **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usará **wss** por defecto.
-- **channels**: los canales van separados por comas **"test1,test2,etc"**
+- **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usará **wss** por defecto. 
 
 El servidor websockets [Echo Server](https://gitlab.com/elyerr/echo-server), por defecto para la autenticación de canales privados y presence usarán las cookies de cada cliente para la autenticación. si el host de autorización maneja la sesión por cookies asegúrate de que estas sean compartidas por todos los subdominios para que el cliente tenga acceso a esas cookies y se envien por medio del server websocket en caso contrario puede agregar el token de autorizacion directamente en la configuración global de EchoClient agregando la siguiente llave. 
 
@@ -141,9 +140,9 @@ this.$echo.getId()
 ```
 
 ### LISTENER U OYENTES POR DEFECTO
-Hay dos tipos de listener por defecto que son emitidos justo cuando alguien se conecta o se desconecta, puedes usarlo por las diferentes categorías de canales y no solo aplica para públicos dependiendo del usuario estos se emitirán por el respectivo canal, el ejemplo debajo hace uso de canales públicos
+Hay dos tipos de listener por defecto que son emitidos justo cuando alguien se conecta o se desconecta, puedes usarlo por las diferentes categorías de canales y no solo aplica para públicos dependiendo del usuario estos se emitirán por el respectivo canal que fue autorizado, el ejemplo debajo hace uso de canales públicos
 ```
-this.$echo.channel(ChannelName).listen("subscribe", (msg) => {
+this.$echo.channel(ChannelName).listen("authorize", (msg) => {
 //logica aqui
 });
 
