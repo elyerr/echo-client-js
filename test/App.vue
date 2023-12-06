@@ -60,30 +60,10 @@ export default {
       this.messages.push([msg.id, msg.message]);
     });
 
-    this.$echo.channel("assets").listen("subscribe", (msg) => {
+    this.$echo.channel("chat").listen("authorize", (msg) => {
       this.messages.push([msg.id, msg.message]);
     });
-
-    this.$echo.channel("chat").listen("subscribe", (msg) => {
-      this.messages.push([msg.id, msg.message]);
-    });
-
-    this.$echo.channel("auth").listen("subscribe", (msg) => {
-      this.messages.push([msg.id, msg.message]);
-    });
-
-    this.$echo.channel("chat").listen("unsubscribe", (msg) => {
-      this.messages.push([msg.id, msg.message]);
-    });
-
-    this.$echo.channel("assets").listen("unsubscribe", (msg) => {
-      this.messages.push([msg.id, msg.message]);
-    });
-
-    this.$echo.channel("auth").listen("unsubscribe", (msg) => {
-      this.messages.push([msg.id, msg.message]);
-    });
-
+  
     this.$echo.closed((close) => {
       console.log(close);
     });

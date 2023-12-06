@@ -7,8 +7,7 @@ const echo = new EchoClient({
   driver: "null", 
   host: "auth.spondylus.xyz",
   port: "6010",
-  transport: 'ws',
-  channels:"chat",
+  transport: 'ws', 
   /*  headers: {
       Authotization: "token",
     },*/
