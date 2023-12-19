@@ -113,24 +113,6 @@ this.$echo.channel(canal)
 })
 
 ``` 
-También te permite solo escuchar los eventos de los demás usuarios que emitan, exceptuando los tuyos propios usando la siguiente función
-
-``` 
-this.$echo.channel(canal)
-.toOthers(event1, (res) => {
-//logica aqui
-})
-.toOthers(event2, (res) => {
-//logica aqui
-})
-.toOthers(event3, (res) => {
-//logica aqui
-})
-.toOthers(event4, (res) => {
-//logica aqui
-})
-
-``` 
 ### OBTENER EL IDENTIFICADOR DE SESSION
 Para obtener el id de la session de echo client puedes usar la siguiente funcion
 ```
