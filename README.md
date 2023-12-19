@@ -16,7 +16,6 @@ import App from "./App.vue";
 
 //configuracion del cliente
 const echo = new EchoClient({
-driver: "null",
 host: "server.dominio.dom",
 port: "6010",
 transport: 'ws', //wss para ssl
@@ -37,7 +36,6 @@ Existen 3 categorías de canales, estos son accedidos a través de una instancia
 - **presence(canals)** : canal de presencia
 
 ### PARÁMETROS ACEPTADOS
-- **driver**: soporta dos tipos **null** y **redis**, si no se agrega la propiedad por defecto usara **null**.
 - **host** : uri donde se ejecuta el servidor principal websocket.
 - **port**: puerto en donde se ejecuta el servidor websockets.
 - **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usará **wss** por defecto. 
@@ -72,7 +70,7 @@ require base_path('routes/channels.php');
 Para emitir eventos simplemente se debe llamar a la instancia de echo global, esta acción puede ir dentro de una función para que sea fácil de controlar, recibe tres parámetros, siendo los 2 últimos parámetros opciones, el primer parámetro es el nombre del evento a emitir, el segundo es un mensaje en el evento, y el último es un id por defecto tomará el id único por sesión generada cuando no se ingresa un valor
 ```
 nuevoEvento() {
-this.$echo.channel("chat")event(EventName: String, msg: String, id: string);
+this.$echo.channel("chat").event(EventName: String, msg: String, id: string);
 },
 ```
 
@@ -97,7 +95,7 @@ this.$echo.presence(canal).listen(event, (res) => {
 
 ```
 ### LISTENER U OYENTES ANIDADOS
-También puedes escuchar múltiples eventos de un solo canal de la siguiente forma, esto aplica tanto para privados y de presencia
+También puedes escuchar múltiples eventos de un solo canal de la siguiente forma, esto para todos los tipos de canales
 
 ``` 
 this.$echo.channel(canal)
@@ -170,3 +168,6 @@ mediante este método te permitirá desconectarte del servidor websockets, ten e
 this.$echo.unsubscribe();
 
 ```
+
+## CONFIGURACION PROXY
+Puedes revisar la documentacion del servidor websockets [Echo Server](https://gitlab.com/elyerr/echo-server/-/blob/main/README.md?ref_type=heads#user-content-multi-instancias) , tambien veras como distribuir la carga en multiples instancias.

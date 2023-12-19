@@ -4,6 +4,6 @@ export class PresenceChannel extends Channel {
 
     public mode: String = 'presence'
  
-    public class_name = PresenceChannel.name
+    public class_name = "PresenceChannel"
 
 }

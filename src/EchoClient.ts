@@ -33,13 +33,6 @@ export default class EchoClient {
     private endpoint: string;
 
     /**
-     * driver por donde escuchara eventos soporta (redis|null)
-     * 
-     * @var String
-     */
-    private driver: String;
-
-    /**
      * constructor principal de la clase
      * 
      * @param options 
@@ -50,10 +43,8 @@ export default class EchoClient {
 
         this.options = JSON.parse(JSON.stringify(options))
 
-        this.driver = this.options.driver ? this.options.driver : null
-
         const transport = this.options.transport ? this.options.transport : 'wss'
-        
+
         this.endpoint = `${transport}://${this.options.host}:${this.options.port}`
 
         this.server = new WebSocket(this.endpoint)
@@ -66,7 +57,7 @@ export default class EchoClient {
      * @returns 
      */
     channel(channel_name: String) {
-        const channel = new PublicChannel(this.server, this.driver, channel_name, null, this.uuid)
+        const channel = new PublicChannel(this.server, channel_name, null, this.uuid)
 
         this.server.addEventListener('open', (open) => {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
@@ -86,7 +77,7 @@ export default class EchoClient {
      * @returns PrivateCannel
      */
     private(channel_name: String) {
-        const channel = new PrivateChannel(this.server, this.driver, channel_name, this.options.auth, this.uuid)
+        const channel = new PrivateChannel(this.server, channel_name, this.options.auth, this.uuid)
 
         this.server.addEventListener('open', (open) => {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
@@ -95,6 +86,7 @@ export default class EchoClient {
         if (this.server.readyState == this.server.OPEN) {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
         }
+
         return channel
     }
 
@@ -105,7 +97,7 @@ export default class EchoClient {
      * @returns 
      */
     presence(channel_name: string) {
-        const channel = new PresenceChannel(this.server, this.driver, channel_name, this.options.auth, this.uuid);
+        const channel = new PresenceChannel(this.server, channel_name, this.options.auth, this.uuid);
 
         this.server.addEventListener('open', (open) => {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
@@ -128,8 +120,7 @@ export default class EchoClient {
             id: this.uuid,
             type: 'authorize',
             channel: channel,
-            headers: this.options.headers ? this.options.headers : null,
-            driver: this.driver
+            headers: this.options.headers ? this.options.headers : null
         }
         return JSON.stringify(data)
     }
@@ -142,8 +133,7 @@ export default class EchoClient {
     unsubscribe() {
 
         this.server.send(JSON.stringify({
-            type: 'unsubscribe',
-            driver: this.driver
+            type: 'unsubscribe'
         }))
 
         const message = 'The client has finished connection'

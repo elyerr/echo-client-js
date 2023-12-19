@@ -29,7 +29,7 @@ export class Channel {
      * 
      * @var String
      */
-    public class_name = Channel.name
+    public class_name = "PublicChannel"
 
     /**
      * almacena las credenciales de usuario solo en presence y private
@@ -42,23 +42,15 @@ export class Channel {
      * indentificador unico de la sesion
      * 
      */
-    protected id: String;
-
-    /**
-     * driver por donde escuchara eventos soporta (redis|null)
-     * 
-     * @var String
-     */
-    private driver: String;
+    protected id: String;  
 
     /**
      * constructor de la clase 
      * @param auth 
      * @param channel 
      */
-    constructor(server: WebSocket, driver: String, channel: String, auth: any, id: String) {
-        this.server = server
-        this.driver = driver
+    constructor(server: WebSocket, channel: String, auth: any, id: String) {
+        this.server = server 
         this.channel = channel
         this.auth = auth,
             this.id = id
@@ -74,16 +66,15 @@ export class Channel {
      */
     listen(ListenEvent: String, callback: Function) {
         //verifica si el canal que evento pertenezca a un canal
-        const channel = this.class_name.toLowerCase().replace('channel', '')
-        const belongsTo = (channel == this.mode);
-
+        const channel = `${this.mode}-${this.channel}`
+        const belongsTo = (this.class_name.toLowerCase().replace('channel', '') == this.mode);
+         
         //escucha eventos entrantes
-        this.server.addEventListener("message", (listen) => {
+        this.server.addEventListener("message", function(event){            
+            const msg = JSON.parse(event.data)
 
-            const msg = JSON.parse(listen.data)
-            
             if (msg.type == "event" && msg.event == ListenEvent &&
-                belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
+                belongsTo && channel == msg.channel) {
                 return callback(msg)
             }
         })
@@ -95,44 +86,19 @@ export class Channel {
      * Emite un evento directamente desde js
      * 
      * @param EventName : String
+     * @param msg : String
+     * @param id : String
      */
     event(EventName: String, msg: String, id: string) {
         const data = {
-            id: id ? id : this.id,
-            driver: this.driver,
+            id: id ? id : this.id, 
             type: 'event',
             channel: `${this.mode}-${this.channel}`,
             event: EventName,
-            message: msg,
+            data: msg,
             headers: this.auth,
         }
 
         this.server.send(JSON.stringify(data))
     }
-
-    /**
-    * Escucha los eventos correspondientes a todos los usuarios emitiendo a todos
-    * excepto al cliente que emitio el evento
-    * 
-    * @param EventName String
-    * @param callback funcion
-    * @return 
-    */
-    toOthers(ListenEvent: String, callback: Function) {
-
-        const channel = this.class_name.toLowerCase().replace('channel', '')
-        const belongsTo = (channel == this.mode);
-
-        this.server.addEventListener("message", (listen) => {
-
-            const msg = JSON.parse(listen.data)
-            if (msg.id != this.id) {
-                if (msg.type == "event" && msg.event == ListenEvent &&
-                    belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
-                    return callback(msg)
-                }
-            }
-        })
-        return this
-    };
 }

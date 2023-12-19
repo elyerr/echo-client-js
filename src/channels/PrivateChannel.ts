@@ -4,6 +4,7 @@ export class PrivateChannel extends Channel {
 
      public mode: String = "private"
 
-     public class_name = PrivateChannel.name
+     public class_name = "PrivateChannel"
+
 
 }

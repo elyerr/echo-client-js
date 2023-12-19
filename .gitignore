@@ -1,4 +1,10 @@
-.vscode
-dist*
+.vscode 
 node_*
-package-* 
+package-*
+build
+tes*
+public*
+index.html
+vite*
+dist
+echo-*.tgz
