@@ -48,6 +48,10 @@ export default class EchoClient {
         this.endpoint = `${transport}://${this.options.host}:${this.options.port}`
 
         this.server = new WebSocket(this.endpoint)
+
+        this.server.addEventListener('open', (open) => {
+            this.ping()
+        })
     }
 
     /**
@@ -66,7 +70,6 @@ export default class EchoClient {
         if (this.server.readyState == this.server.OPEN) {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
         }
-
         return channel
     }
 
@@ -86,7 +89,6 @@ export default class EchoClient {
         if (this.server.readyState == this.server.OPEN) {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
         }
-
         return channel
     }
 
@@ -106,7 +108,6 @@ export default class EchoClient {
         if (this.server.readyState == this.server.OPEN) {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
         }
-
         return channel
     }
 
@@ -170,5 +171,24 @@ export default class EchoClient {
      */
     getId() {
         return this.uuid;
+    }
+
+    /**
+     * verifica la conexion cada 5 segundos
+     */
+    ping() {
+        const socket = this.server
+        const data = {
+            id: this.uuid,
+            type: 'ping', 
+        }
+        setInterval(function () {
+            socket.send(JSON.stringify(data))
+        }, 1500)
+
+        socket.onmessage = (message) => {
+            console.log(message);
+            
+        }
     }
 }
