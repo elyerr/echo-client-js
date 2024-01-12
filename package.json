@@ -1,6 +1,6 @@
 { 
   "name": "echo-client-js",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "license": "GPL-3.0",
   "description": "Cliente de websockets de Echo Server para clientes bajo javascript",
   "main": "./dist/EchoClient.js",
