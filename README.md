@@ -153,3 +153,6 @@ this.$echo.unsubscribe();
 
 ## CONFIGURACION PROXY
 Puedes revisar la documentacion del servidor websockets [Echo Server](https://gitlab.com/elyerr/echo-server/-/blob/main/README.md?ref_type=heads#user-content-multi-instancias) , tambien veras como distribuir la carga en multiples instancias.
+
+# DESARROLLADOR
+- [Telegram](https://t.me/elyerr)
