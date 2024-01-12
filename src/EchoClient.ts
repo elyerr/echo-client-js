@@ -184,11 +184,6 @@ export default class EchoClient {
         }
         setInterval(function () {
             socket.send(JSON.stringify(data))
-        }, 1500)
-
-        socket.onmessage = (message) => {
-            console.log(message);
-            
-        }
+        }, 5000) 
     }
 }
