@@ -32,11 +32,10 @@ export class Channel {
     public class_name = Channel.name
 
     /**
-     * almacena las credenciales de usuario solo en presence y private
-     * 
-     * @var any
+     * almacena el token
+     * @var String
      */
-    protected auth: any;
+    public token: String;
 
     /**
      * indentificador unico de la sesion
@@ -44,24 +43,17 @@ export class Channel {
      */
     protected id: String;
 
-    /**
-     * driver por donde escuchara eventos soporta (redis|null)
-     * 
-     * @var String
-     */
-    private driver: String;
 
     /**
      * constructor de la clase 
      * @param auth 
      * @param channel 
      */
-    constructor(server: WebSocket, driver: String, channel: String, auth: any, id: String) {
-        this.server = server
-        this.driver = driver
+    constructor(server: WebSocket, channel: String, id: String, token: String) {
+        this.id = id
         this.channel = channel
-        this.auth = auth,
-            this.id = id
+        this.server = server
+        this.token = token
     }
 
     /**
@@ -81,9 +73,7 @@ export class Channel {
         this.server.addEventListener("message", (listen) => {
 
             const msg = JSON.parse(listen.data)
-            
-            if (msg.type == "event" && msg.event == ListenEvent &&
-                belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
+            if (msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
                 return callback(msg)
             }
         })
@@ -99,12 +89,10 @@ export class Channel {
     event(EventName: String, msg: String, id: string) {
         const data = {
             id: id ? id : this.id,
-            driver: this.driver,
-            type: 'event',
-            channel: `${this.mode}-${this.channel}`,
             event: EventName,
+            channel: `${this.mode}-${this.channel}`,
             message: msg,
-            headers: this.auth,
+            token: this.token
         }
 
         this.server.send(JSON.stringify(data))
@@ -127,8 +115,7 @@ export class Channel {
 
             const msg = JSON.parse(listen.data)
             if (msg.id != this.id) {
-                if (msg.type == "event" && msg.event == ListenEvent &&
-                    belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
+                if (msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
                     return callback(msg)
                 }
             }
