@@ -1,9 +1,9 @@
 { 
   "name": "echo-client-js",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "license": "GPL-3.0",
   "description": "Cliente de websockets de Echo Server para clientes bajo javascript",
-  "main": "./dist/EchoClient.js",
+  "main": "./distribution/EchoClient.js",
   "author": {
     "email": "yerel9212@yahoo.es",
     "name": "Elvis Yerel Roman Concha",
