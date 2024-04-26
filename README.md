@@ -18,6 +18,19 @@ Existen 3 categorías de canales, estos son accedidos a través de una instancia
 - **transport** : acepta los dos estandares **ws** mayormente para testing y **wss**, si no se agrega la propiedad se usará **wss** por defecto. 
 - **token**: token de autorizacion requerido para canales privados
 
+- configuracion
+    ```
+        import EchoClient from "echo-client-js";
+
+        const options = {
+            host: sockets.dominio.org,
+            port: 443,
+            transport: wss,
+            token: tu API Token,
+        };
+
+        export const $echo = new EchoClient(options);
+    ```
 El servidor websockets [Echo Server](https://gitlab.com/elyerr/echo-server), por defecto para la autenticación de canales privados usarán las cookies de cada cliente para la autenticación. si el host de autorización maneja la sesión por cookies asegúrate de que estas sean compartidas por todos los subdominios para que el cliente tenga acceso a esas cookies y se envien por medio del server websocket en caso contrario puede agregar el token de autorizacion directamente en la configuración global de EchoClient agregando la siguiente llave. 
  
  
