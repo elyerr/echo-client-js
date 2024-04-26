@@ -1,6 +1,5 @@
 import { PrivateChannel } from "./channels/PrivateChannel";
 import { PublicChannel } from "./channels/PublicChannel";
-import { PresenceChannel } from "./channels/PresenceChannel";
 import { v4 as uuidv4 } from 'uuid';
 export default class EchoClient {
 
@@ -19,18 +18,18 @@ export default class EchoClient {
     private server: WebSocket;
 
     /**
-     * indentificador unico del cliente
-     * 
-     * @var string
-     */
-    private uuid: String;
-
-    /**
      * URL o endpoint del servidor websockets
      * 
      * @var string
      */
     private endpoint: string;
+
+
+    /**
+     * Authorization token
+     * @var String
+     */
+    private token: String;
 
     /**
      * constructor principal de la clase
@@ -39,13 +38,11 @@ export default class EchoClient {
      */
     constructor(options: any) {
 
-        this.uuid = uuidv4()
-
         this.options = JSON.parse(JSON.stringify(options))
 
         const transport = this.options.transport ? this.options.transport : 'wss'
-
         this.endpoint = `${transport}://${this.options.host}:${this.options.port}`
+        this.token = this.options.token ? this.options.token : null
 
         this.server = new WebSocket(this.endpoint)
 
@@ -61,7 +58,7 @@ export default class EchoClient {
      * @returns 
      */
     channel(channel_name: String) {
-        const channel = new PublicChannel(this.server, channel_name, null, this.uuid)
+        const channel = new PublicChannel(this.server, channel_name, uuidv4(), "")
 
         this.server.addEventListener('open', (open) => {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
@@ -70,6 +67,7 @@ export default class EchoClient {
         if (this.server.readyState == this.server.OPEN) {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
         }
+
         return channel
     }
 
@@ -80,26 +78,7 @@ export default class EchoClient {
      * @returns PrivateCannel
      */
     private(channel_name: String) {
-        const channel = new PrivateChannel(this.server, channel_name, this.options.auth, this.uuid)
-
-        this.server.addEventListener('open', (open) => {
-            this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
-        })
-
-        if (this.server.readyState == this.server.OPEN) {
-            this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
-        }
-        return channel
-    }
-
-    /**
-     * Escucha canales de presencia
-     * 
-     * @param channel_name : String
-     * @returns 
-     */
-    presence(channel_name: string) {
-        const channel = new PresenceChannel(this.server, channel_name, this.options.auth, this.uuid);
+        const channel = new PrivateChannel(this.server, channel_name, uuidv4(), this.token)
 
         this.server.addEventListener('open', (open) => {
             this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
@@ -118,10 +97,11 @@ export default class EchoClient {
     */
     authorize(channel: String) {
         const data = {
-            id: this.uuid,
-            type: 'authorize',
+            id: uuidv4(),
+            event: 'connected',
             channel: channel,
-            headers: this.options.headers ? this.options.headers : null
+            message: "new device connected",
+            token: this.token
         }
         return JSON.stringify(data)
     }
@@ -131,14 +111,17 @@ export default class EchoClient {
     * 
     * @return String
     */
-    unsubscribe() {
+    unsubscribe(channel: String) {
 
         this.server.send(JSON.stringify({
-            type: 'unsubscribe'
+            id: uuidv4(),
+            event: 'disconnected',
+            channel: channel,
+            message: "device disconnected",
+            token: this.token
         }))
 
-        const message = 'The client has finished connection'
-        this.server.close(1000, message)
+        this.server.close(1000, 'The client has finished connection')
     }
 
     /**
@@ -163,27 +146,16 @@ export default class EchoClient {
         })
     }
 
-
-    /**
-     * retorna el uuid unico generado por cada session
-     * 
-     * @return String
-     */
-    getId() {
-        return this.uuid;
-    }
-
     /**
      * verifica la conexion cada 5 segundos
      */
     ping() {
         const socket = this.server
         const data = {
-            id: this.uuid,
-            type: 'ping', 
+            type: 'ping',
         }
         setInterval(function () {
             socket.send(JSON.stringify(data))
-        }, 5000) 
+        }, 5000)
     }
 }

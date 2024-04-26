@@ -8,3 +8,4 @@ index.html
 vite*
 dist
 echo-*.tgz
+dist*
