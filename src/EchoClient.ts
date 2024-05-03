@@ -49,6 +49,15 @@ export default class EchoClient {
         this.server.addEventListener('open', (open) => {
             this.ping()
         })
+        //reconnecting 
+        this.server.addEventListener('close', (open) => {
+            setInterval(() => {
+                this.server = new WebSocket(this.endpoint)
+                this.server.addEventListener('open', (open) => {
+                    location.reload()
+                })
+            }, 5000)
+        })
     }
 
     /**
