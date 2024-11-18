@@ -1,24 +1,26 @@
 import { PrivateChannel } from "./channels/PrivateChannel";
 import { PublicChannel } from "./channels/PublicChannel";
 import { v4 as uuidv4 } from 'uuid';
+import EchoOptions from "./interfaces/EchoOptions"
+
 export default class EchoClient {
 
     /**
-     * almacena los datos de conexion y credenciales de usuario
+     * Configuration options for WebSocket connection
      * 
-     * @var any
+     * @var EchoOptions
      */
-    private options: any;
+    private options: EchoOptions;
 
     /**
-     * Crear una instancia del servidor websocket
+     * WebSocket server connection instance
      * 
-     * @var String
+     * @var WebSocket
      */
     private server: WebSocket;
 
     /**
-     * URL o endpoint del servidor websockets
+     * URI of the WebSocket server
      * 
      * @var string
      */
@@ -26,136 +28,165 @@ export default class EchoClient {
 
 
     /**
-     * Authorization token
-     * @var String
+     * Authorization token for authentication
+     * 
+     * @var string
      */
-    private token: String;
+    private token: string | null;
 
     /**
-     * constructor principal de la clase
+     * Constructor to initialize the EchoClient instance and establish WebSocket connection
      * 
-     * @param options 
+     * @param options Configuration options for the WebSocket connection
      */
     constructor(options: any) {
 
-        this.options = JSON.parse(JSON.stringify(options))
+        // Deep clone the options object to avoid any mutation
+        this.options = JSON.parse(JSON.stringify(options));
 
-        const transport = this.options.transport ? this.options.transport : 'wss'
-        this.endpoint = `${transport}://${this.options.host}:${this.options.port}`
-        this.token = this.options.token ? this.options.token : null
+        // Determine the transport type (either 'wss' or custom)
+        const transport = this.options.transport ? this.options.transport : 'wss';
 
-        this.server = new WebSocket(this.endpoint)
+        // Construct the WebSocket endpoint using transport, host, and port
+        this.endpoint = `${transport}://${this.options.host}:${this.options.port}`;
 
+        // Set the token for authorization, defaulting to null if not provided
+        this.token = this.options.token ? this.options.token : null;
+
+        // Create a new WebSocket instance with the provided endpoint
+        this.server = new WebSocket(this.endpoint);
+
+        // When the WebSocket connection opens, ping the server to keep it alive
         this.server.addEventListener('open', (open) => {
-            this.ping()
-        })
+            this.ping();
+        });
+
+        // Handle reconnection when the server closes the connection
+        this.server.addEventListener('close', (open) => {
+            setInterval(() => {
+                // Recreate the WebSocket instance to reconnect
+                this.server = new WebSocket(this.endpoint);
+                this.server.addEventListener('open', (open) => {
+                    // Reload the page when the connection opens
+                    location.reload();
+                });
+            }, 5000);
+        });
     }
 
     /**
-     * acceso a canales publicos
+     * Access a public channel by its name
      * 
-     * @param channel_name : String
-     * @returns 
+     * @param channel_name The name of the public channel
+     * @returns PublicChannel
      */
-    channel(channel_name: String) {
-        const channel = new PublicChannel(this.server, channel_name, uuidv4(), "")
+    channel(channel_name: string) {
+        const channel = new PublicChannel(this.server, channel_name, uuidv4(), "");
 
+        // Send authorization data when the connection opens
         this.server.addEventListener('open', (open) => {
-            this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
-        })
+            this.server.send(this.authorize(`${channel.mode}-${channel_name}`));
+        });
 
+        // If the connection is already open, send authorization immediately
         if (this.server.readyState == this.server.OPEN) {
-            this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
+            this.server.send(this.authorize(`${channel.mode}-${channel_name}`));
         }
 
-        return channel
+        return channel;
     }
 
     /**
-     * Retorna una instancia de un canal privado
+     * Access a private channel by its name
      * 
-     * @param channel_name 
-     * @returns PrivateCannel
+     * @param channel_name The name of the private channel
+     * @returns PrivateChannel
      */
-    private(channel_name: String) {
-        const channel = new PrivateChannel(this.server, channel_name, uuidv4(), this.token)
+    private(channel_name: string) {
+        const channel = new PrivateChannel(this.server, channel_name, uuidv4(), this.token);
 
+        // Send authorization data when the connection opens
         this.server.addEventListener('open', (open) => {
-            this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
-        })
+            this.server.send(this.authorize(`${channel.mode}-${channel_name}`));
+        });
 
+        // If the connection is already open, send authorization immediately
         if (this.server.readyState == this.server.OPEN) {
-            this.server.send(this.authorize(`${channel.mode}-${channel_name}`))
+            this.server.send(this.authorize(`${channel.mode}-${channel_name}`));
         }
-        return channel
+
+        return channel;
     }
 
     /**
-    * envia informacion relevante al servidor cuando se ingresa por primera vez
-    * 
-    * @return String
-    */
-    authorize(channel: String) {
+     * Sends relevant information to the server when connecting for the first time
+     * 
+     * @param channel The channel to be authorized
+     * @returns string The authorization data in JSON format
+     */
+    authorize(channel: string) {
         const data = {
             id: uuidv4(),
             event: 'connected',
             channel: channel,
             message: "new device connected",
             token: this.token
-        }
-        return JSON.stringify(data)
+        };
+        return JSON.stringify(data);
     }
 
     /**
-    * cierra una conexion con el servidor websocket
-    * 
-    * @return String
-    */
-    unsubscribe(channel: String) {
+     * Closes the WebSocket connection and sends a disconnection message
+     * 
+     * @param channel The channel to be unsubscribed from
+     */
+    unsubscribe(channel: string) {
 
+        // Send a disconnection message to the server
         this.server.send(JSON.stringify({
             id: uuidv4(),
             event: 'disconnected',
             channel: channel,
             message: "device disconnected",
             token: this.token
-        }))
+        }));
 
-        this.server.close(1000, 'The client has finished connection')
+        // Close the WebSocket connection with a normal closure status code
+        this.server.close(1000, 'The client has finished connection');
     }
 
     /**
-     * escucha el envento cuando el servidor cierra la conexion 
+     * Listens for the 'close' event when the WebSocket connection is closed
      * 
-     * @param callback : Function
+     * @param callback The callback function to be executed when the connection is closed
      */
     closed(callback: Function) {
         this.server.addEventListener('close', (close) => {
-            return callback(close)
-        })
+            return callback(close);
+        });
     }
 
     /**
-     * escucha el envento cuando ocurre un error con el servidor websockets
+     * Listens for the 'error' event when an error occurs with the WebSocket server
      * 
-     * @param callback Function
+     * @param callback The callback function to be executed when an error occurs
      */
     error(callback: Function) {
         this.server.addEventListener('error', (error) => {
-            return callback(error)
-        })
+            return callback(error);
+        });
     }
 
     /**
-     * verifica la conexion cada 5 segundos
+     * Pings the server every 5 seconds to keep the connection alive
      */
     ping() {
-        const socket = this.server
+        const socket = this.server;
         const data = {
             type: 'ping',
-        }
+        };
         setInterval(function () {
-            socket.send(JSON.stringify(data))
-        }, 5000)
+            socket.send(JSON.stringify(data));
+        }, 5000);
     }
 }

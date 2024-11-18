@@ -2,14 +2,14 @@
 export class Channel {
 
     /**
-     * nombre del canal 
+     * Name of channel
      * 
-     * @var String
+     * @var string
      */
-    protected channel: String;
+    protected channel: string;
 
     /**
-     * instacia de websokets
+     * Websocket instance
      * 
      * @var WebSocket
      */
@@ -17,76 +17,74 @@ export class Channel {
     protected server: WebSocket;
 
     /**
-     * tipo del tipo del canal
+     * Channel type 
      * 
-     * @var String
+     * @var string
      */
-    public mode: String = 'public';
+    public mode: string = 'public';
 
 
     /**
-     * nombre de la clase
+     * Class Name
      * 
-     * @var String
+     * @var string
      */
     public class_name = Channel.name
 
     /**
-     * almacena el token
-     * @var String
+     * Authorization Token 
+     * @var string
      */
-    public token: String;
+    public token: string | null;
 
     /**
-     * indentificador unico de la sesion
+     * Unique identifier for current connection
      * 
      */
-    protected id: String;
+    protected id: string;
 
 
     /**
-     * constructor de la clase 
+     * Constructor
      * @param auth 
      * @param channel 
+     * @param id
+     * @param token
      */
-    constructor(server: WebSocket, channel: String, id: String, token: String) {
+    constructor(server: WebSocket, channel: string, id: string, token: string | null) {
         this.id = id
         this.channel = channel
         this.server = server
         this.token = token
-    }
+    } 
 
     /**
-     * Escucha los eventos correspondientes a cada clase emitiendolos a todos 
-     * los que estan suscritos a ese canal y escuchando dicho evento
+     * Listening the events for the channel
      * 
-     * @param EventName String
-     * @param callback funcion
+     * @param EventName noma of event
+     * @param callback function
      * @return 
      */
-    listen(ListenEvent: String, callback: Function) {
-        //verifica si el canal que evento pertenezca a un canal
+    listen(ListenEvent: string, callback: Function) {
         const channel = this.class_name.toLowerCase().replace('channel', '')
         const belongsTo = (channel == this.mode);
 
-        //escucha eventos entrantes
         this.server.addEventListener("message", (listen) => {
 
             const msg = JSON.parse(listen.data)
             if (msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
                 return callback(msg)
             }
-        })
-
+        });
         return this
     };
 
     /**
-     * Emite un evento directamente desde js
+     * Emit the event from js
      * 
-     * @param EventName : String
+     * @param EventName event name to emit
      */
-    event(EventName: String, msg: String, id: string) {
+    event(EventName: string, msg: string, id: string) {
         const data = {
             id: id ? id : this.id,
             event: EventName,
@@ -99,14 +97,12 @@ export class Channel {
     }
 
     /**
-    * Escucha los eventos correspondientes a todos los usuarios emitiendo a todos
-    * excepto al cliente que emitio el evento
-    * 
-    * @param EventName String
-    * @param callback funcion
+    * Listen the events except for the current user emitted the event
+    * @param EventName string
+    * @param callback function
     * @return 
     */
-    toOthers(ListenEvent: String, callback: Function) {
+    toOthers(ListenEvent: string, callback: Function) {
 
         const channel = this.class_name.toLowerCase().replace('channel', '')
         const belongsTo = (channel == this.mode);

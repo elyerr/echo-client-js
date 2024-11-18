@@ -2,9 +2,8 @@
 .gitignore
 node_*
 public
-src
 test
 index*
 package-lock.json
 vite*
-dist
+tsconfig*

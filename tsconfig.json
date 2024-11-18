@@ -3,18 +3,19 @@
     "src/**/*"
   ],
   "compilerOptions": {
-    "target": "ES2018",
+    "declaration": true,
+    "module": "ES2015",
+    "moduleResolution": "Node",
+    "outDir": "dist",
+    "sourceMap": true,
+    "target": "ES6",
+    "isolatedModules": false,
+    "removeComments": true,
+    "esModuleInterop": true, 
     "lib": [
-      "ES2018",
+      "ES6",
       "DOM"
     ],
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "outDir": "distribution",
-    "removeComments": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "sourceMap": true
+    "strict": true, 
   }
 }
