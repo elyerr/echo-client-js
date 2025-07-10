@@ -1,6 +1,7 @@
 export default interface EchoOptions {
     transport?: string;
     host: string;
-    port: number;
+    port: number; 
     token?: string;
+    reload?: boolean
 }

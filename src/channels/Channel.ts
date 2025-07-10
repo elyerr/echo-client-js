@@ -6,7 +6,7 @@ export class Channel {
      * 
      * @var string
      */
-    protected channel: string;
+    public channel: string;
 
     /**
      * Websocket instance
@@ -21,15 +21,17 @@ export class Channel {
      * 
      * @var string
      */
-    public mode: string = 'public';
-
+    public mode: string = "public";
 
     /**
-     * Class Name
-     * 
-     * @var string
+     * Redis prefix of channels
      */
-    public class_name = Channel.name
+    public prefix: string | null;
+
+    /**
+     * Socket id
+     */
+    public socket_id: string;
 
     /**
      * Authorization Token 
@@ -38,25 +40,25 @@ export class Channel {
     public token: string | null;
 
     /**
-     * Unique identifier for current connection
-     * 
-     */
-    protected id: string;
-
-
-    /**
      * Constructor
-     * @param auth 
+     * @param server 
+     * @param socket_id 
      * @param channel 
-     * @param id
-     * @param token
+     * @param token 
      */
-    constructor(server: WebSocket, channel: string, id: string, token: string | null) {
-        this.id = id
-        this.channel = channel
+    constructor(
+        server: WebSocket,
+        socket_id: string,
+        channel: string,
+        prefix: string | null = null,
+        token: string | null = null
+    ) {
+        this.channel = channel;
+        this.prefix = prefix;
+        this.socket_id = socket_id
         this.server = server
         this.token = token
-    } 
+    }
 
     /**
      * Listening the events for the channel
@@ -66,35 +68,30 @@ export class Channel {
      * @return 
      */
     listen(ListenEvent: string, callback: Function) {
-        const channel = this.class_name.toLowerCase().replace('channel', '')
-        const belongsTo = (channel == this.mode);
+
+        let channel = `${this.mode}-${this.channel}`;
+        if (this.prefix) {
+            channel = `${this.prefix}_${channel}`;
+        }
 
         this.server.addEventListener("message", (listen) => {
 
+            //Decode string data to json
             const msg = JSON.parse(listen.data)
-            if (msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
+
+            //Deny access to ping pong and bad events
+            if (msg.type !== undefined) {
+                return;
+            }
+
+            //Listen events
+            if (msg.event == ListenEvent && channel == msg.data.channel) {
                 return callback(msg)
             }
         });
+
         return this
     };
-
-    /**
-     * Emit the event from js
-     * 
-     * @param EventName event name to emit
-     */
-    event(EventName: string, msg: string, id: string) {
-        const data = {
-            id: id ? id : this.id,
-            event: EventName,
-            channel: `${this.mode}-${this.channel}`,
-            message: msg,
-            token: this.token
-        }
-
-        this.server.send(JSON.stringify(data))
-    }
 
     /**
     * Listen the events except for the current user emitted the event
@@ -103,19 +100,51 @@ export class Channel {
     * @return 
     */
     toOthers(ListenEvent: string, callback: Function) {
-
-        const channel = this.class_name.toLowerCase().replace('channel', '')
-        const belongsTo = (channel == this.mode);
+        let channel = `${this.mode}-${this.channel}`;
+        if (this.prefix) {
+            channel = `${this.prefix}_${channel}`;
+        }
 
         this.server.addEventListener("message", (listen) => {
 
+            //Decode string data to json
             const msg = JSON.parse(listen.data)
-            if (msg.id != this.id) {
-                if (msg.event == ListenEvent && belongsTo && `${this.mode}-${this.channel}` == msg.channel) {
-                    return callback(msg)
-                }
+
+            //Deny access to ping pong and bad events
+            if (msg.type !== undefined || msg.socket == this.socket_id) {
+                return;
             }
-        })
+
+            //Listen events
+            if (msg.event == ListenEvent && (channel == msg.data.channel)) {
+                return callback(msg)
+            }
+        });
+
         return this
     };
+
+
+    /**
+     * Create new event 
+     * @param event 
+     * @param message 
+     */
+    event(event: string, message: string) {
+        const payload: WebSocketEvent = {
+            type: 'events',
+            channel: this.channel,
+            event: event,
+            message: message,
+            socket_id: this.socket_id
+        };
+
+        if (this.server.readyState === WebSocket.OPEN) {
+            this.server.send(JSON.stringify(payload));
+        } else {
+            this.server.addEventListener('open', () => {
+                this.server.send(JSON.stringify(payload));
+            }, { once: true });
+        }
+    }
 }
