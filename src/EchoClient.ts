@@ -26,6 +26,11 @@ export default class EchoClient {
     private endpoint: string;
 
     /**
+     * @var boolean
+     */
+    private reload: boolean;
+
+    /**
      * Socket id
      */
     public socket_id: string;
@@ -40,6 +45,8 @@ export default class EchoClient {
 
         // Deep clone the options object to avoid any mutation
         this.options = JSON.parse(JSON.stringify(options));
+
+        this.reload = this.options.reload ?? true;
 
         // Determine the transport type (either 'wss' or custom)
         const transport = this.options.transport ? this.options.transport : "wss";
@@ -56,15 +63,17 @@ export default class EchoClient {
         });
 
         // Handle reconnection when the server closes the connection
-        this.server.addEventListener("close", (open) => {
-            setInterval(() => {
-                // Recreate the WebSocket instance to reconnect
-                this.server = new WebSocket(this.endpoint);
-                this.server.addEventListener("open", (open) => {
-                    // Reload the page when the connection opens
-                    location.reload();
-                });
-            }, 10000);
+        this.server.addEventListener("close", (open) => {             
+            if (this.reload) {
+                setInterval(() => {
+                    // Recreate the WebSocket instance to reconnect
+                    this.server = new WebSocket(this.endpoint);
+                    this.server.addEventListener("open", (open) => {
+                        // Reload the page when the connection opens
+                        location.reload();
+                    });
+                }, 10000);
+            }
         });
     }
 
