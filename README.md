@@ -198,4 +198,4 @@ If you have questions, suggestions, or just want to get in touch:
 
 ## 📄 License
 
-[GNU General Public License](./README.md)
+[GNU General Public License](./LICENSE.md)
